@@ -1,0 +1,14 @@
+# directories
+__pycache__/
+.git/
+config/
+data/
+docs/
+htmlcov/
+junk/
+logs/
+# files
+.coverage
+.gitignore
+Dockerfile
+README.md
