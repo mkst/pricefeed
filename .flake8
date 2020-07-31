@@ -1,0 +1,5 @@
+[flake8]
+exclude =
+    test
+    junk
+max-line-length = 100
