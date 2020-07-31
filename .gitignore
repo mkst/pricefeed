@@ -1,0 +1,11 @@
+# folders
+data/
+docs/
+htmlcov/
+junk/
+logs/
+__pycache__/
+
+# files
+.coverage
+*.pyc
