@@ -72,9 +72,15 @@ class PriceFeed(fix.Application):
             logger.info('Logged OFF %s', session_id)
             self.shutdown()
 
-    # pylint: disable=R0201,W0613
     def to_admin(self, message, session_id):  # pragma: no cover
         """Notification of admin message being sent to target."""
+
+        if message.getHeader().getField(fix.MsgType()).getString() == 'A':  # LOGON
+            session_settings = self.fix_adapter.getSessionSettings(session_id)
+            if session_settings.has('Username'):
+                message.getHeader().setField(553, session_settings.getString('Username'))
+            if session_settings.has('Password'):
+                message.getHeader().setField(554, session_settings.getString('Password'))
         return
 
     # pylint: disable=R0201,W0613
