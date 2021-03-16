@@ -69,9 +69,10 @@ class BookBuilder():
         # update quote cache
         self.quotes[symbol] = updated_quotes
         # build new book
-        book = build_book(time, updated_quotes.values(), self.schema, self.max_levels)
+        book = build_book(time, updated_quotes.values(), np.copy(self.schema), self.max_levels)
         # push book to outbound queue
         self.outbound_queue.put((time, symbol, book))
+        # return book to aid testing
         return book
 
 
@@ -103,7 +104,7 @@ def update_quotes(time, current_quotes, quotes):
 
 def update_entry(quote_entry, entry_type, time, size, price):
     """Helper function to create/update individual quote entry"""
-    logger.debug('%s %s %f %f', entry_type, time, size, price)
+    logger.debug('%r %r %r %r', entry_type, time, size, price)
     if quote_entry is None:
         quote_entry = {'entry_type': entry_type}
     if price:

@@ -74,14 +74,12 @@ class PriceFeed(fix.Application):
 
     def to_admin(self, message, session_id):  # pragma: no cover
         """Notification of admin message being sent to target."""
-
         if message.getHeader().getField(fix.MsgType()).getString() == 'A':  # LOGON
             session_settings = self.fix_adapter.getSessionSettings(session_id)
             if session_settings.has('Username'):
                 message.getHeader().setField(553, session_settings.getString('Username'))
             if session_settings.has('Password'):
                 message.getHeader().setField(554, session_settings.getString('Password'))
-        return
 
     # pylint: disable=R0201,W0613
     def to_app(self, message, session_id):  # pragma: no cover
@@ -127,11 +125,7 @@ class PriceFeed(fix.Application):
         """Turn a MarketDataSnapshot message into quotes"""
         logger.debug('Full Snapshot: %s', soh_to_pipe(message))
 
-        sending_time = message.getHeader().getField(52)
-        strp_format = '%Y%m%d-%H:%M:%S.%f' if len(sending_time) > 17 else '%Y%m%d-%H:%M:%S'
-        exch_time = int(1e6*datetime.datetime.strptime(sending_time, strp_format)
-                        .replace(tzinfo=datetime.timezone.utc)
-                        .timestamp())
+        exch_time = sending_time_to_timestamp(message.getHeader().getField(52))
         symbol = drop_slash(message.getField(55))    # Symbol
         # snapshot has separate entries for bid/ask, but quotes do not
         entries = {}
@@ -159,18 +153,14 @@ class PriceFeed(fix.Application):
 
     def on_mass_quote(self, message, session_id):
         """Turn a MassQuote message into quotes"""
-        sending_time = message.getHeader().getField(52)
-        strp_format = '%Y%m%d-%H:%M:%S.%f' if len(sending_time) > 17 else '%Y%m%d-%H:%M:%S'
-        exch_time = int(1e6*datetime.datetime.strptime(sending_time, strp_format)
-                        .replace(tzinfo=datetime.timezone.utc)
-                        .timestamp())
+        exch_time = sending_time_to_timestamp(message.getHeader().getField(52))
         # iterate over each quote set
         for i in range(int(message.getField(296))):
             message.getGroup(1+i, self.quote_set)
             quote_set_id = self.quote_set.getField(302)
             symbol = self.active_subscriptions.get(quote_set_id)
             if symbol is None:
-                logger.error('%r not found in active_subscriptions', quote_set_id)
+                logger.error('%s not found in active_subscriptions', quote_set_id)
                 return
             entries = process_quote_set(self.quote_set, self.quote_entry)
             self.queue.put((exch_time, symbol, entries))
@@ -197,10 +187,10 @@ class PriceFeed(fix.Application):
         fix.Session.sendToTarget(msg, session_id)
 
 
-def create_market_data_request(requestId, symbol):
-    """Construct MarketDataRequest with requestId and symbol"""
+def create_market_data_request(request_id, symbol):
+    """Construct MarketDataRequest with request_id and symbol"""
     msg = fix44.MarketDataRequest()
-    msg.setField(fix.MDReqID(requestId))            # 262 = requestId, e.g. 1
+    msg.setField(fix.MDReqID(request_id))           # 262 = request id, e.g. 1
     msg.setField(fix.SubscriptionRequestType('1'))  # 263 = 1 = Subscribe
     msg.setField(fix.MarketDepth(0))                # 264 = 0 = Full Book
     group = fix44.MarketDataRequest.NoRelatedSym()  # 146 = 1
@@ -215,6 +205,14 @@ def soh_to_pipe(message):
 
 def drop_slash(symbol):
     return symbol.replace('/', '')
+
+
+def sending_time_to_timestamp(sending_time):
+    """Convert a FIX datetime to unix datetime"""
+    strp_format = '%Y%m%d-%H:%M:%S.%f' if len(sending_time) > 17 else '%Y%m%d-%H:%M:%S'
+    return int(1e6*datetime.datetime.strptime(sending_time, strp_format)
+               .replace(tzinfo=datetime.timezone.utc)
+               .timestamp())
 
 
 def process_quote_set(quote_set, quote_entry):
