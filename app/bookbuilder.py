@@ -57,12 +57,16 @@ class BookBuilder():
 
     def process_item(self, item):
         """Update quotes and publish a book"""
-        time, symbol, new_quotes = item
-        logger.debug('Processing %i new quote(s) for %s @ %s', len(new_quotes), symbol, time)
+        time, symbol, new_quotes, snapshot = item
+        logger.debug('Processing %i new quote(s) for %s @ %s (snapshot: %r)',
+                     len(new_quotes), symbol, time, snapshot)
 
         current_quotes = self.quotes.get(symbol)
         if current_quotes is None:
             logger.debug('First quote of the session for %s', symbol)
+            current_quotes = {}
+        if snapshot:
+            # clear quotes on snapshot
             current_quotes = {}
         # apply updates
         updated_quotes = update_quotes(time, current_quotes, new_quotes)
@@ -158,6 +162,7 @@ def build_book(time, quotes, schema, number_of_levels=10):
 
 
 def create_schema(levels):
+    """Helper function to create empty array to inject quotes into"""
     dtype = []
     dtype.append(('time', 'uint64'))
     column_datetype = [

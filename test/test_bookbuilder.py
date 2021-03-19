@@ -52,10 +52,25 @@ class TestBookBuilderClass(unittest.TestCase):
     def test_process_item(self):
         with patch('app.bookbuilder.update_quotes', side_effect=[dict()]) as update_quotes:
             with patch('app.bookbuilder.build_book') as build_book:
-                self.bookbuilder.process_item([1, "symbol", [3, 4, 5]])
+                self.bookbuilder.process_item([1, "symbol", [3, 4, 5], False])
                 update_quotes.assert_called_with(1, {}, [3, 4, 5])
                 build_book.assert_called_once()
 
+    def test_process_item_not_snapshot(self):
+        with patch('app.bookbuilder.update_quotes', side_effect=[dict()]) as update_quotes:
+            with patch('app.bookbuilder.build_book') as build_book:
+                self.bookbuilder.quotes["symbol"] = {'a': 1 }
+                self.bookbuilder.process_item([1, "symbol", [3, 4, 5], False])
+                update_quotes.assert_called_with(1, {'a': 1 }, [3, 4, 5])
+                build_book.assert_called_once()
+
+    def test_process_item_snapshot(self):
+        with patch('app.bookbuilder.update_quotes', side_effect=[dict()]) as update_quotes:
+            with patch('app.bookbuilder.build_book') as build_book:
+                self.bookbuilder.quotes["symbol"] = {'a': 1 }
+                self.bookbuilder.process_item([1, "symbol", [3, 4, 5], True])
+                update_quotes.assert_called_with(1, {}, [3, 4, 5])
+                build_book.assert_called_once()
 
 class TestBookBuilderFuncs(unittest.TestCase):
 
@@ -214,7 +229,10 @@ class TestBookBuilderFuncs(unittest.TestCase):
         self.assertEqual({}, res)
 
     def test_update_quotes_delete_bid_multiple_levels(self):
-        quote = [['1', 100, None, 1.23, None, 'provider1'], ['2', 250, None, 1.22, None, 'provider1']]
+        quote = [
+            ['1', 100, None, 1.23, None, 'provider1'],
+            ['2', 250, None, 1.22, None, 'provider1']
+        ]
         new_quote = [['1', -1, None, 1.23, None, 'provider1']]
         quotes = bb.update_quotes(self.time, {}, quote)
         res = bb.update_quotes(self.new_time, quotes, new_quote)
