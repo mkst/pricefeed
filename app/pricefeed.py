@@ -149,7 +149,7 @@ class PriceFeed(fix.Application):
                 quote_entry[4] = entry_px
             entries[entry_id] = quote_entry
         items = list(entries.values())
-        self.queue.put((exch_time, symbol, items))
+        self.queue.put((exch_time, symbol, items, True))
 
     def on_mass_quote(self, message, session_id):
         """Turn a MassQuote message into quotes"""
@@ -163,7 +163,7 @@ class PriceFeed(fix.Application):
                 logger.error('%s not found in active_subscriptions', quote_set_id)
                 return
             entries = process_quote_set(self.quote_set, self.quote_entry)
-            self.queue.put((exch_time, symbol, entries))
+            self.queue.put((exch_time, symbol, entries, False))
 
         if message.isSetField(fix.QuoteID()):
             self.send_ack(message, session_id)

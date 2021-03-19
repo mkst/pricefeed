@@ -38,7 +38,6 @@ class TestPriceFeedClass(unittest.TestCase):
         self.pricefeed.set_fix_adapter("fix_adapter")
         self.assertEqual("fix_adapter", self.pricefeed.fix_adapter)
 
-
     # on_logon
     def test_onlogon(self):
         with patch('app.pricefeed.PriceFeed.send_subscriptions') as send_subscriptions:
@@ -122,7 +121,7 @@ class TestPriceFeedClass(unittest.TestCase):
             self.pricefeed.active_subscriptions["0"] = "EURUSD"
             self.pricefeed.on_mass_quote(self.fix_mass_quote, None)
             self.pricefeed.queue.put.assert_called_once()
-            self.pricefeed.queue.put.assert_called_with((1447100433240000, 'EURUSD', [['0', 1000000.0, 1000000.0, 1.51218, 1.51223, '1']]))
+            self.pricefeed.queue.put.assert_called_with((1447100433240000, 'EURUSD', [['0', 1000000.0, 1000000.0, 1.51218, 1.51223, '1']], False))
             send_ack.assert_called_with(self.fix_mass_quote, None)
 
     def test_on_mass_quote_no_quote_id(self):
@@ -130,7 +129,7 @@ class TestPriceFeedClass(unittest.TestCase):
             self.pricefeed.active_subscriptions["0"] = "EURUSD"
             self.pricefeed.on_mass_quote(self.fix_mass_quote_no_id, None)
             self.pricefeed.queue.put.assert_called_once()
-            self.pricefeed.queue.put.assert_called_with((1447100433240000, 'EURUSD', [['0', 1000000.0, 1000000.0, 1.51218, 1.51223, '1']]))
+            self.pricefeed.queue.put.assert_called_with((1447100433240000, 'EURUSD', [['0', 1000000.0, 1000000.0, 1.51218, 1.51223, '1']], False))
             send_ack.assert_not_called()
 
     def test_on_mass_quote_multiple_quotesets(self):
@@ -139,8 +138,8 @@ class TestPriceFeedClass(unittest.TestCase):
         self.pricefeed.on_mass_quote(self.fix_mass_quote_quotesets, None)
         assert (self.pricefeed.queue.put.call_count == 2)
         calls = [
-            call((1447100433240000, 'EURUSD', [['0', 1000000.0, 1000000.0, 1.51218, 1.51223, '1']])),
-            call((1447100433240000, 'AUDCAD', [['0', 2000000.0, 2000000.0, 2.51218, 2.51223, '2']]))
+            call((1447100433240000, 'EURUSD', [['0', 1000000.0, 1000000.0, 1.51218, 1.51223, '1']], False)),
+            call((1447100433240000, 'AUDCAD', [['0', 2000000.0, 2000000.0, 2.51218, 2.51223, '2']], False))
         ]
         self.pricefeed.queue.put.assert_has_calls(calls)
 
@@ -164,7 +163,7 @@ class TestPriceFeedClass(unittest.TestCase):
                 ['3', 10000000.0, 10000000.0, 7.76637, 7.7668, '0'],
                 ['4', 8000000.0, 8000000.0, 7.76633, 7.76683, '2'],
                 ['5', 25000000.0, 25000000.0, 7.76618, 7.767, '0']
-            ])),
+            ], False)),
             call((1615906730329000, 'USDHUF', [
                 ['0', 2800000.0, 3600000.0, 308.355, 308.555, '2'],
                 ['1', 3100000.0, 3800000.0, 308.354, 308.556, '2'],
@@ -172,7 +171,7 @@ class TestPriceFeedClass(unittest.TestCase):
                 ['3', 3600000.0, 4100000.0, 308.352, 308.558, '2'],
                 ['4', 3900000.0, 6100000.0, 308.351, 308.559, '2'],
                 ['5', 1000000.0, 1000000.0, 308.29, 308.61, '0']
-            ])),
+            ], False)),
             call((1615906730329000, 'USDILS', [
                 ['0', 1000000.0, 1000000.0, 3.2997, 3.3016, '0'],
                 ['1', 2000000.0, 2000000.0, 3.2996, 3.3017, '0'],
@@ -180,7 +179,7 @@ class TestPriceFeedClass(unittest.TestCase):
                 ['3', 3000000.0, 4000000.0, 3.2994, 3.3019, '0'],
                 ['4', 4000000.0, 5000000.0, 3.2993, 3.302, '0'],
                 ['5', 5000000.0, 1000000.0, 3.2992, 3.3021, '1']
-            ])),
+            ], False)),
             call((1615906730329000, 'USDJPY', [
                 ['0', 4000000.0, 4000000.0, 108.899, 108.901, '2'],
                 ['1', 3000000.0, 1000000.0, 108.898, 108.901, '1'],
@@ -188,7 +187,7 @@ class TestPriceFeedClass(unittest.TestCase):
                 ['3', 5000000.0, 5000000.0, 108.897, 108.903, '1'],
                 ['4', 5000000.0, 5000000.0, 108.896, 108.903, '2'],
                 ['5', 1000000.0, 10000000.0, 108.896, 108.904, '1']
-            ])),
+            ], False)),
             call((1615906730329000, 'USDMXN', [
                 ['0', 1000000.0, 300000.0, 20.5538, 20.55849, '2'],
                 ['1', 1000000.0, 750000.0, 20.5535, 20.55857, '2'],
@@ -196,7 +195,7 @@ class TestPriceFeedClass(unittest.TestCase):
                 ['3', 750000.0, 2250000.0, 20.55343, 20.55902, '2'],
                 ['4', 1500000.0, 3000000.0, 20.55326, 20.55921, '2'],
                 ['5', 2000000.0, 1000000.0, 20.5532, 20.5593, '1']
-            ])),
+            ], False)),
             call((1615906730329000, 'USDNOK', [
                 ['0', 1000000.0, 1000000.0, 8.47478, 8.47578, '2'],
                 ['1', 1600000.0, 1500000.0, 8.4745, 8.47606, '2'],
@@ -204,7 +203,7 @@ class TestPriceFeedClass(unittest.TestCase):
                 ['3', 2600000.0, 4100000.0, 8.47429, 8.47668, '2'],
                 ['4', 2900000.0, 4600000.0, 8.47424, 8.47672, '2'],
                 ['5', 2000000.0, 1000000.0, 8.4736, 8.477, '0']
-            ])),
+            ], False)),
             call((1615906730329000, 'USDPLN', [
                 ['0', 600000.0, 600000.0, 3.8563, 3.8568, '2'],
                 ['1', 1200000.0, 1100000.0, 3.85619, 3.85689, '2'],
@@ -212,14 +211,14 @@ class TestPriceFeedClass(unittest.TestCase):
                 ['3', 3700000.0, 2300000.0, 3.85608, 3.85698, '2'],
                 ['4', 4300000.0, 2900000.0, 3.85607, 3.85702, '2'],
                 ['5', 1000000.0, 1000000.0, 3.8559, 3.8575, '0']
-            ])),
+            ], False)),
             call((1615906730329000, 'USDRUB', [
                 ['0', 1000000.0, 1000000.0, 72.689, 72.7084, '1'],
                 ['1', 1000000.0, 3000000.0, 72.6848, 72.7119, '1'],
                 ['2', 3000000.0, 1000000.0, 72.6813, 72.715, '2'],
                 ['3', 5000000.0, 5000000.0, 72.6712, 72.719, '1'],
                 ['4', 6000000.0, 6000000.0, 72.6672, 72.7229, '1']
-            ])),
+            ], False)),
             call((1615906730329000, 'USDSEK', [
                 ['0', 1000000.0, 1000000.0, 8.522, 8.5232, '2'],
                 ['1', 3000000.0, 1500000.0, 8.5218, 8.52335, '2'],
@@ -227,7 +226,7 @@ class TestPriceFeedClass(unittest.TestCase):
                 ['3', 1600000.0, 2100000.0, 8.52158, 8.52345, '2'],
                 ['4', 2600000.0, 1000000.0, 8.5215, 8.5235, '1'],
                 ['5', 3100000.0, 4600000.0, 8.52147, 8.52367, '2']
-            ]))
+            ], False))
         ]
         self.pricefeed.queue.put.assert_has_calls(calls)
 
@@ -242,12 +241,12 @@ class TestPriceFeedClass(unittest.TestCase):
         self.pricefeed.active_subscriptions["0"] = "EURUSD"
         self.pricefeed.on_market_data_snapshot(self.fix_market_data_snapshot, None)
         self.pricefeed.queue.put.assert_called_once()
-        self.pricefeed.queue.put.assert_called_with((1591185600106000, 'EURUSD', [['0', 1000000.0, 1000000.0, 1.11941, 1.11944, '1']]))
-    def test_market_data_snapshot(self):
+        self.pricefeed.queue.put.assert_called_with((1591185600106000, 'EURUSD', [['0', 1000000.0, 1000000.0, 1.11941, 1.11944, '1']], True))
+    def test_market_data_snapshot_zero_qty(self):
         self.pricefeed.active_subscriptions["0"] = "XAUUSD"
         self.pricefeed.on_market_data_snapshot(self.fix_market_data_snapshot_zero_qty, None)
         self.pricefeed.queue.put.assert_called_once()
-        self.pricefeed.queue.put.assert_called_with((1616101216225000, 'XAUUSD', [['0', 0.0, 0.0, 1735.98, 1737.04, '2']]))
+        self.pricefeed.queue.put.assert_called_with((1616101216225000, 'XAUUSD', [['0', 0.0, 0.0, 1735.98, 1737.04, '2']], True))
 # on_market_data_request_reject
     def test_on_market_data_request_reject(self):
         self.pricefeed.active_subscriptions["0"] = "EURUSD"
