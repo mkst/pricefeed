@@ -91,7 +91,7 @@ class TestBookBuilderFuncs(unittest.TestCase):
             'entry_type': 0,
             'time': 1,
             'price': 1.25,
-            'size': 100
+            'size': 100.0
         }
 
 # update_quotes
@@ -100,15 +100,15 @@ class TestBookBuilderFuncs(unittest.TestCase):
         quote = [['1', 100, None, 1.23, None, 'provider1']]
         res = bb.update_quotes(self.time, {}, quote)
         self.assertEqual(1, len(res))
-        self.assertEqual({'B1': {'entry_type': 0, 'price': 1.23, 'size': 100,
+        self.assertEqual({'B1': {'entry_type': 0, 'price': 1.23, 'size': 100.0,
                                  'time': 1595336924000000}},
                          res)
 
     def test_update_quotes_empty_book_ask(self):
-        quote = [['1', None, 200, None, 2.34, 'provider1']]
+        quote = [['1', None, 200.0, None, 2.34, 'provider1']]
         res = bb.update_quotes(self.time, {}, quote)
         self.assertEqual(1, len(res))
-        self.assertEqual({'S1': {'entry_type': 1, 'price': 2.34, 'size': 200,
+        self.assertEqual({'S1': {'entry_type': 1, 'price': 2.34, 'size': 200.0,
                                  'time': 1595336924000000}},
                          res)
 
@@ -122,6 +122,13 @@ class TestBookBuilderFuncs(unittest.TestCase):
                                  'time': 1595336924000000}},
                          res)
 
+    def test_update_quotes_empty_book_zero_qty(self):
+        quote = [['1', 0.0, None, 1.23, None, 'provider1']]
+        res = bb.update_quotes(self.time, {}, quote)
+        self.assertEqual(1, len(res))
+        self.assertEqual({'B1': {'entry_type': 0, 'price': 1.23, 'size': 0.0,
+                                 'time': 1595336924000000}},
+                         res)
     # update price
     def test_update_quotes_update_bid_price(self):
         quote = [['1', 100, None, 1.23, None, 'provider1']]
@@ -407,3 +414,14 @@ class TestBookBuilderFuncs(unittest.TestCase):
         self.assertEqual([1595336922000000, 1595336923000000, 1595336924000000], times)
         self.assertEqual([2.32, 2.33, 2.34], prices)
         self.assertEqual([200, 300, 400], sizes)
+
+    def test_flip_quotes_filter_zero_qty(self):
+        quotes = [
+            {'entry_type': 0, 'price': 1.23, 'size': 5.0, 'time': 1595336923000000},
+            {'entry_type': 0, 'price': 1.24, 'size': 0.0, 'time': 1595336924000000},
+            {'entry_type': 0, 'price': 1.25, 'size': 3.0, 'time': 1595336925000000},
+        ]
+        times, prices, sizes = bb.flip_quotes(quotes, 0, False)
+        self.assertEqual([1595336923000000, 1595336925000000], times)
+        self.assertEqual([1.23, 1.25], prices)
+        self.assertEqual([5.0, 3.0], sizes)

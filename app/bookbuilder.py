@@ -107,9 +107,9 @@ def update_entry(quote_entry, entry_type, time, size, price):
     logger.debug('%r %r %r %r', entry_type, time, size, price)
     if quote_entry is None:
         quote_entry = {'entry_type': entry_type}
-    if price:
+    if price is not None:
         quote_entry['price'] = price
-    if size:
+    if size is not None:
         if size == -1:
             # fast exit
             return None
@@ -121,7 +121,7 @@ def update_entry(quote_entry, entry_type, time, size, price):
 def flip_quotes(quotes, entry_type, descending):
     """Filter and transpose list of dicts into list of sorted lists"""
     # filter based on entry_type
-    filtered = list(filter(lambda x: x['entry_type'] == entry_type, quotes))
+    filtered = list(filter(lambda x: x['entry_type'] == entry_type and x['size'] > 0, quotes))
     # pull out rows into columns
     entries = [[d[k] for d in filtered] for k in ['time', 'price', 'size']]
     entry_times = entries[0]
