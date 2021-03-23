@@ -83,22 +83,21 @@ class BookBuilder():
 def update_quotes(time, current_quotes, quotes):
     """Process quote updates"""
     for quote in quotes:
-        # ignore provider for now
-        entry_id, bid_size, ask_size, bid_price, ask_price, _ = quote
+        entry_id, bid_size, ask_size, bid_price, ask_price, bid_provider, ask_provider = quote
         # bid
-        if bid_size or bid_price:
+        if bid_size is not None or bid_price is not None:
             entry_key = 'B' + entry_id
             bid_entry = update_entry(current_quotes.get(entry_key), 0,
-                                     time, bid_size, bid_price)
+                                     time, bid_size, bid_price, bid_provider)
             if bid_entry:
                 current_quotes[entry_key] = bid_entry
             else:
                 del current_quotes[entry_key]
         # ask
-        if ask_size or ask_price:
+        if ask_size is not None or ask_price is not None:
             entry_key = 'S' + entry_id
             ask_entry = update_entry(current_quotes.get(entry_key), 1,
-                                     time, ask_size, ask_price)
+                                     time, ask_size, ask_price, ask_provider)
             if ask_entry:
                 current_quotes[entry_key] = ask_entry
             else:
@@ -106,9 +105,9 @@ def update_quotes(time, current_quotes, quotes):
     return current_quotes
 
 
-def update_entry(quote_entry, entry_type, time, size, price):
+def update_entry(quote_entry, entry_type, time, size, price, provider):
     """Helper function to create/update individual quote entry"""
-    logger.debug('%r %r %r %r', entry_type, time, size, price)
+    logger.debug('%r %r %r %r %r', entry_type, time, size, price, provider)
     if quote_entry is None:
         quote_entry = {'entry_type': entry_type}
     if price is not None:
@@ -118,31 +117,37 @@ def update_entry(quote_entry, entry_type, time, size, price):
             # fast exit
             return None
         quote_entry['size'] = size
+    if provider is not None:
+        quote_entry['provider'] = provider
+    else:
+        quote_entry['provider'] = ''  # do we need this?
     quote_entry['time'] = time
     return quote_entry
 
 
 def flip_quotes(quotes, entry_type, descending):
     """Filter and transpose list of dicts into list of sorted lists"""
-    # filter based on entry_type
+    # filter based on entry_type, discard prices with zero qty
     filtered = list(filter(lambda x: x['entry_type'] == entry_type and x['size'] > 0, quotes))
     # pull out rows into columns
-    entries = [[d[k] for d in filtered] for k in ['time', 'price', 'size']]
-    entry_times = entries[0]
-    entry_prices = entries[1]
-    entry_sizes = entries[2]
+    entries = [[d[k] for d in filtered] for k in ['time', 'price', 'size', 'provider']]
+    times = entries[0]
+    prices = entries[1]
+    sizes = entries[2]
+    providers = entries[3]
     # index to sort ascending/descending
-    sort_idx = np.argsort(entry_prices)[::-1 if descending else 1]
+    sort_idx = np.argsort(prices)[::-1 if descending else 1]
     # apply sorting
-    return ([entry_times[x] for x in sort_idx],
-            [entry_prices[x] for x in sort_idx],
-            [entry_sizes[x] for x in sort_idx])
+    return ([times[x] for x in sort_idx],
+            [prices[x] for x in sort_idx],
+            [sizes[x] for x in sort_idx],
+            [providers[x] for x in sort_idx])
 
 
 def build_book(time, quotes, schema, number_of_levels=10):
     """Constructs a book based on list of quotes"""
-    bid_times, bid_prices, bid_sizes = flip_quotes(quotes, 0, True)
-    ask_times, ask_prices, ask_sizes = flip_quotes(quotes, 1, False)
+    bid_times, bid_prices, bid_sizes, bid_providers = flip_quotes(quotes, 0, True)
+    ask_times, ask_prices, ask_sizes, ask_providers = flip_quotes(quotes, 1, False)
     # create schema-like structure
     row = [time] + \
         bid_times[:min(number_of_levels, len(bid_times))] + \
@@ -151,12 +156,16 @@ def build_book(time, quotes, schema, number_of_levels=10):
         [0] * (number_of_levels - min(number_of_levels, len(bid_prices))) + \
         bid_sizes[:min(number_of_levels, len(bid_sizes))] + \
         [0] * (number_of_levels - min(number_of_levels, len(bid_sizes))) + \
+        bid_providers[:min(number_of_levels, len(bid_providers))] + \
+        [''] * (number_of_levels - min(number_of_levels, len(bid_providers))) + \
         ask_times[:min(number_of_levels, len(ask_times))] + \
         [0] * (number_of_levels - min(number_of_levels, len(ask_times))) + \
         ask_prices[:min(number_of_levels, len(ask_prices))] + \
         [0] * (number_of_levels - min(number_of_levels, len(ask_prices))) + \
         ask_sizes[:min(number_of_levels, len(ask_sizes))] + \
-        [0] * (number_of_levels - min(number_of_levels, len(ask_sizes)))
+        [0] * (number_of_levels - min(number_of_levels, len(ask_sizes))) + \
+        ask_providers[:min(number_of_levels, len(ask_providers))] + \
+        [''] * (number_of_levels - min(number_of_levels, len(ask_providers)))
     schema[0] = tuple(row)
     return schema
 
@@ -169,9 +178,11 @@ def create_schema(levels):
         ('bid_time', 'uint64'),
         ('bid_px', 'float64'),
         ('bid_size', 'float64'),
+        ('bid_provider', 'S1'),
         ('ask_time', 'uint64'),
         ('ask_px', 'float64'),
-        ('ask_size', 'float64')
+        ('ask_size', 'float64'),
+        ('ask_provider', 'S1')
         ]
     for column, datatype in column_datetype:
         for i in range(levels):

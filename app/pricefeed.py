@@ -140,13 +140,15 @@ class PriceFeed(fix.Application):
 
             quote_entry = entries.get(entry_id)
             if quote_entry is None:
-                quote_entry = [entry_id, None, None, None, None, provider]
+                quote_entry = [entry_id, None, None, None, None, None, None]
             if entry_type == '0':  # bid
                 quote_entry[1] = entry_size
                 quote_entry[3] = entry_px
+                quote_entry[5] = provider
             else:
                 quote_entry[2] = entry_size
                 quote_entry[4] = entry_px
+                quote_entry[6] = provider
             entries[entry_id] = quote_entry
         items = list(entries.values())
         self.queue.put((exch_time, symbol, items, True))
@@ -228,5 +230,12 @@ def process_quote_set(quote_set, quote_entry):
         ask_size = float(quote_entry.getField(135)) if quote_entry.isSetField(135) else None
         bid_price = float(quote_entry.getField(188)) if quote_entry.isSetField(188) else None
         ask_price = float(quote_entry.getField(190)) if quote_entry.isSetField(190) else None
-        entries.append([entry_id, bid_size, ask_size, bid_price, ask_price, provider])
+        bid_provider = provider if ((bid_price is not None) or (bid_size is not None)) else None
+        ask_provider = provider if ((ask_price is not None) or (ask_size is not None)) else None
+        entries.append([
+            entry_id,
+            bid_size, ask_size,
+            bid_price, ask_price,
+            bid_provider, ask_provider
+        ])
     return entries
