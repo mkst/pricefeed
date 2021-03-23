@@ -31,55 +31,55 @@ ITEM = (1509980228528000, 'EURDKK', [
     ['19', 10000000.0, 10000000.0, 1.80679, 1.80728, '1']])
 
 QUOTES = [
-    {'entry_type': 0, 'price': 1.80699, 'size': 100000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80709, 'size': 100000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80698, 'size': 250000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80710, 'size': 250000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80697, 'size': 500000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80711, 'size': 500000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80695, 'size': 750000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80712, 'size': 750000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80694, 'size': 1000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80713, 'size': 1000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80693, 'size': 2000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80714, 'size': 2000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80692, 'size': 3000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80715, 'size': 3000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80691, 'size': 5000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80716, 'size': 5000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80690, 'size': 7500000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80717, 'size': 7500000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80689, 'size': 10000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80718, 'size': 10000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80688, 'size': 15000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80719, 'size': 15000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80687, 'size': 20000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80720, 'size': 20000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80686, 'size': 30000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80721, 'size': 30000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80685, 'size': 40000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80722, 'size': 40000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80684, 'size': 50000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80723, 'size': 50000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80683, 'size': 60000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80724, 'size': 60000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80682, 'size': 70000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80725, 'size': 70000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80681, 'size': 80000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80726, 'size': 80000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80680, 'size': 90000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80727, 'size': 90000000.0, 'time': 1595336924000000},
-    {'entry_type': 0, 'price': 1.80679, 'size': 10000000.0, 'time': 1595336924000000},
-    {'entry_type': 1, 'price': 1.80728, 'size': 10000000.0, 'time': 1595336924000000}
+    {'entry_type': 0, 'price': 1.80699, 'size': 100000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80709, 'size': 100000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80698, 'size': 250000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80710, 'size': 250000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80697, 'size': 500000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80711, 'size': 500000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80695, 'size': 750000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80712, 'size': 750000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80694, 'size': 1000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80713, 'size': 1000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80693, 'size': 2000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80714, 'size': 2000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80692, 'size': 3000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80715, 'size': 3000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80691, 'size': 5000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80716, 'size': 5000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80690, 'size': 7500000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80717, 'size': 7500000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80689, 'size': 10000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80718, 'size': 10000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80688, 'size': 15000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80719, 'size': 15000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80687, 'size': 20000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80720, 'size': 20000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80686, 'size': 30000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80721, 'size': 30000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80685, 'size': 40000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80722, 'size': 40000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80684, 'size': 50000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80723, 'size': 50000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80683, 'size': 60000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80724, 'size': 60000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80682, 'size': 70000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80725, 'size': 70000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80681, 'size': 80000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80726, 'size': 80000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80680, 'size': 90000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80727, 'size': 90000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 0, 'price': 1.80679, 'size': 10000000.0, 'time': 1595336924000000, 'provider': 'p1'},
+    {'entry_type': 1, 'price': 1.80728, 'size': 10000000.0, 'time': 1595336924000000, 'provider': 'p1'}
     ]
 
 
 def bench_update_quotes(iterations):
     start_time = datetime.datetime.now()
     time, _, quotes = ITEM
-    res = {}
+    # res = {}
     for _ in range(iterations):
-        res = app.bookbuilder.update_quotes(time, res, quotes)
+        app.bookbuilder.update_quotes(time, {}, quotes)
     end_time = datetime.datetime.now()
     duration = (end_time - start_time).total_seconds()
     return ("process_items", iterations, duration)
@@ -90,7 +90,7 @@ def bench_build_book(iterations):
     start_time = datetime.datetime.now()
     schema = np.empty(1, dtype=schema)
     for _ in range(iterations):
-        app.bookbuilder.build_book(1, QUOTES, schema, 10)
+        app.bookbuilder.build_book(1, QUOTES, np.copy(schema), 10)
     end_time = datetime.datetime.now()
     duration = (end_time - start_time).total_seconds()
     return ("build_book", iterations, duration)
@@ -100,6 +100,7 @@ def bench_flip_quotes(iterations):
     start_time = datetime.datetime.now()
     for _ in range(iterations):
         app.bookbuilder.flip_quotes(QUOTES, 0, False)
+        app.bookbuilder.flip_quotes(QUOTES, 0, True)
     end_time = datetime.datetime.now()
     duration = (end_time - start_time).total_seconds()
     return ("flip_quotes", iterations, duration)
