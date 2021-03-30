@@ -66,11 +66,18 @@ class BookBuilder():
             logger.debug('First quote of the session for %s', symbol)
             current_quotes = {}
         if snapshot:
-            # clear quotes on snapshot
+            previous_quotes = current_quotes
             current_quotes = {}
         # apply updates
         updated_quotes = update_quotes(time, current_quotes, new_quotes)
-        # update quote cache
+        # restore previous quote time if snapshot is not changing quote values
+        if snapshot:
+            for key, new in updated_quotes.items():
+                old = previous_quotes.get(key)
+                if old and (old["price"] == new["price"] and
+                            old["size"] == new["size"] and
+                            old["provider"] == new["provider"]):
+                    new["time"] = old["time"]
         self.quotes[symbol] = updated_quotes
         # build new book
         book = build_book(time, updated_quotes.values(), np.copy(self.schema), self.max_levels)
@@ -119,14 +126,16 @@ def update_entry(quote_entry, entry_type, time, size, price, provider):
         quote_entry['size'] = size
     if provider is not None:
         quote_entry['provider'] = provider
-    else:
-        quote_entry['provider'] = ''  # do we need this?
+    if 'provider' not in quote_entry:
+        logger.warning('No provider for quote entry %r, defaulting to ""', quote_entry)
+        quote_entry['provider'] = ''
     quote_entry['time'] = time
     return quote_entry
 
 
 def flip_quotes(quotes, entry_type, descending):
     """Filter and transpose list of dicts into list of sorted lists"""
+    # NOTE: does NOT sort on qty/time in the event of a tie on price
     # filter based on entry_type, discard prices with zero qty
     filtered = list(filter(lambda x: x['entry_type'] == entry_type and x['size'] > 0, quotes))
     # pull out rows into columns

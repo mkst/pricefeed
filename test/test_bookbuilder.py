@@ -488,6 +488,9 @@ class TestBookBuilderFuncs(unittest.TestCase):
         res = bb.update_entry(self.quote_entry, 0, 1, -1, None, None)
         self.assertEqual(None, res)
 
+    def test_update_entry_no_provider(self):
+        res = bb.update_entry(None, 0, 1, 100, 1.25, None)
+        self.assertEqual('', res['provider'])
 # flip_quotes
     def test_flip_quotes_bid_descending(self):
         times, prices, sizes, providers = bb.flip_quotes(self.quotes, 0, True)
