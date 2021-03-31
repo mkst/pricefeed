@@ -1051,10 +1051,10 @@ class TestIntegrationClass(unittest.TestCase):
     # [1] 2100000 @ 1.34 lp1 | [1] 1200000 @ 1.34 lp1
     def test_snapshot_reduce_to_one_level(self):
         self.bookbuilder.quotes['USDCAD'] = {
-            'B0': {'entry_type': 0, 'price': 1.34, 'size': 2000000.0, 'provider': '0', 'time': 1616965217185000},
-            'S0': {'entry_type': 1, 'price': 1.34, 'size': 1500000.0, 'provider': '0', 'time': 1616965217185000},
-            'B1': {'entry_type': 0, 'price': 1.34, 'size': 2100000.0, 'provider': '1', 'time': 1616965217185000},
-            'S1': {'entry_type': 1, 'price': 1.34, 'size': 1200000.0, 'provider': '1', 'time': 1616965217185000}
+            'B0': {'entry_type': 0, 'price': 1.34, 'size': 2000000.0, 'provider': '0', 'time': 1616965217186000},
+            'S0': {'entry_type': 1, 'price': 1.34, 'size': 1500000.0, 'provider': '0', 'time': 1616965217186000},
+            'B1': {'entry_type': 0, 'price': 1.34, 'size': 2100000.0, 'provider': '1', 'time': 1616965217186000},
+            'S1': {'entry_type': 1, 'price': 1.34, 'size': 1200000.0, 'provider': '1', 'time': 1616965217186000}
         }
         msg = fix.Message('8=FIX.4.4|9=153|35=W|34=5|49=XC461|52=20210328-21:00:17.187|56=Q000|55=USD/CAD|262=1|268=2|269=0|270=1.34|271=2100000|299=1|106=1|269=1|270=1.34|271=1200000|299=1|106=1|10=201|'.replace('|', '\x01'), self.data_dictionary)
         self.pricefeed.on_market_data_snapshot(msg, None)
@@ -1068,7 +1068,7 @@ class TestIntegrationClass(unittest.TestCase):
         self.assertEqual('USDCAD', symbol)
         self.assertEqual(1616965217187000, book['time'])
         # check bids
-        self.assertEqual(1616965217185000, book['bid_time0'])
+        self.assertEqual(1616965217186000, book['bid_time0'])
         self.assertEqual(1.34, book['bid_px0'])
         self.assertEqual(2100000, book['bid_size0'])
         self.assertEqual(b'1', book['bid_provider0'][0])
@@ -1077,7 +1077,7 @@ class TestIntegrationClass(unittest.TestCase):
         self.assertEqual(0, book['bid_size1'])
         self.assertEqual(b'', book['bid_provider1'][0])
         # check asks
-        self.assertEqual(1616965217185000, book['ask_time0'])
+        self.assertEqual(1616965217186000, book['ask_time0'])
         self.assertEqual(1.34, book['ask_px0'])
         self.assertEqual(1200000, book['ask_size0'])
         self.assertEqual(b'1', book['ask_provider0'][0])
