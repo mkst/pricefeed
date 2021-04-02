@@ -143,7 +143,7 @@ def write_to_existing_dataset_file(dataset, filename, offset, file_block_size=32
     assert offset is not None
     # store variable as we use it a few times
     dataset_length = dataset.size
-    logger.info('Writing %i entries to %s', dataset_length, filename)
+    logger.debug('Writing %i entries to %s', dataset_length, filename)
     with h5py.File(filename, 'a') as dataset_file:
         need_resize = (offset + dataset_length) >= dataset_file['time'].len()
         for name in dataset.dtype.names:

@@ -1,11 +1,15 @@
 # folders
+__pycache__/
 data/
 docs/
+fixlogs/
 htmlcov/
 junk/
 logs/
-__pycache__/
+work/
 
 # files
 .coverage
 *.pyc
+*.log
+config/mappings.json

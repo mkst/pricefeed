@@ -8,7 +8,7 @@ from multiprocessing import Event, Process, Queue
 
 import quickfix as fix
 
-from app import bookbuilder, filewriter, pricefeed
+from app import bookbuilder, filewriter, fixpricefeed
 
 
 def create_file_writer(inbound_queue, shutdown_event, cache_size, block_size, file_path):
@@ -39,7 +39,7 @@ def create_fix_client(outbound_queue, shutdown_event, subscriptions, cfg):
         settings = fix.SessionSettings(cfg)
         store_factory = fix.FileStoreFactory(settings)
         log_factory = fix.FileLogFactory(settings)
-        feed = pricefeed.PriceFeed(outbound_queue, shutdown_event, subscriptions)
+        feed = fixpricefeed.FixPriceFeed(outbound_queue, shutdown_event, subscriptions)
         initiator = fix.SocketInitiator(feed, store_factory, settings, log_factory)
         feed.set_fix_adapter(initiator)
         feed.run()

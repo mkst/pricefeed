@@ -8,7 +8,7 @@ import quickfix as fix
 import quickfix44 as fix44
 
 import app.bookbuilder as bb
-import app.pricefeed as pf
+import app.fixpricefeed as pf
 import app.pxm44 as pxm44
 
 class TestIntegrationClass(unittest.TestCase):
@@ -19,10 +19,10 @@ class TestIntegrationClass(unittest.TestCase):
         self.shutdown_consumer = Mock()
         self.data_dictionary = fix.DataDictionary()
         self.data_dictionary.readFromURL('spec/pxm44.xml')
-        self.pricefeed = pf.PriceFeed(self.pricefeed_queue, self.shutdown_event, ['EUR/USD', 'USD/CAD'])
+        self.pricefeed = pf.FixPriceFeed(self.pricefeed_queue, self.shutdown_event, ['EUR/USD', 'USD/CAD'])
         self.bookbuilder = bb.BookBuilder(self.pricefeed_queue, self.filewriter_queue,
                                           self.shutdown_event, self.shutdown_consumer,
-                                          max_levels=3)
+                                          None, max_levels=3)
 
 # 1.) logon
 
@@ -141,7 +141,7 @@ class TestIntegrationClass(unittest.TestCase):
     # [0] 1100000*@ 2.47*lp0*| [1] 2200000*@ 2.48*lp1*
     # [1] 1100000*@ 2.46*lp1*| [0] 2200000*@ 2.49*lp0*
     def test_incremental_book_1(self):
-        with patch('app.pricefeed.PriceFeed.send_ack') as send_ack:
+        with patch('app.fixpricefeed.FixPriceFeed.send_ack') as send_ack:
             msg = fix.Message('8=FIX.4.4|9=184|35=i|34=6|49=XC461|52=20210328-21:00:17.157|56=Q000|117=1|296=1|302=0|295=2|299=0|106=0|134=1100000|135=2200000|188=2.47|190=2.49|299=1|106=1|134=1100000|135=2200000|188=2.46|190=2.48|10=245|'.replace('|', '\x01'), self.data_dictionary)
             self.pricefeed.active_subscriptions['0'] = 'EURUSD'
             self.pricefeed.on_mass_quote(msg, None)
@@ -194,7 +194,7 @@ class TestIntegrationClass(unittest.TestCase):
     # [0] 2200000 @ 1.47 lp0 | [0] 1100000 @ 1.49 lp1 *** asks could be either way around
     # [1] 2200000 @ 1.46 lp1 | [1] 1100000 @ 1.49 lp0
     def test_incremental_book_2(self):
-        with patch('app.pricefeed.PriceFeed.send_ack') as send_ack:
+        with patch('app.fixpricefeed.FixPriceFeed.send_ack') as send_ack:
             msg = fix.Message('8=FIX.4.4|9=304|35=i|34=6|49=XC461|52=20210328-21:00:17.159|56=Q000|117=1|296=2|302=0|295=2|299=0|106=1|134=1200000|135=1200000|188=2.46|190=2.47|299=1|106=0|134=2300000|135=2300000|188=2.45|190=2.48|302=1|295=2|299=0|106=0|134=2200000|135=1100000|188=1.47|190=1.49|299=1|106=1|134=2200000|135=1100000|188=1.46|190=1.49|10=117|'.replace('|', '\x01'), self.data_dictionary)
             self.pricefeed.active_subscriptions['0'] = 'EURUSD'
             self.pricefeed.active_subscriptions['1'] = 'USDCAD'
