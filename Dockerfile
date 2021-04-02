@@ -1,14 +1,16 @@
 FROM python:3.8-slim as build
 
-RUN apt-get update && apt-get install -y gcc g++
+RUN apt-get update && apt-get install -y gcc g++ zip
 
 COPY requirements.txt /
 
-RUN pip3 install $(cat requirements.txt)
+RUN pip3 install -r requirements.txt
 
 # stage 2
 
 FROM python:3.8-slim as base
+
+COPY --from=build /usr/bin/unzip /usr/bin/unzip
 
 COPY --from=build /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/
 

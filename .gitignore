@@ -1,11 +1,20 @@
 # folders
+__pycache__/
+.pytest_cache/
+csv/
 data/
 docs/
+fixlogs/
+hdb/
 htmlcov/
 junk/
 logs/
-__pycache__/
+work/
+zips/
 
 # files
 .coverage
+*.csv
+*.log
 *.pyc
+*.h5

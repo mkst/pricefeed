@@ -1,3 +1,4 @@
+"""Simple File Writer, writes data to disk in hdf5 format"""
 import logging
 import os
 from queue import Empty
@@ -53,13 +54,21 @@ class FileWriter():
     def shutdown(self):
         """Perform shutdown related housekeeping"""
         logger.info('Shutdown triggered!')
+        qsize = self.inbound_queue.qsize()
+        if qsize > 0:
+            logger.warning("Queue contains %i items, consuming before shutting down...", qsize)
+        processed = 0
         # drain queue
         while True:
             try:
-                item = self.inbound_queue.get(block=False)
+                # book builder is slower than filewriter, so block during queue drain!
+                item = self.inbound_queue.get(block=True, timeout=3)
+                processed += 1
             except Empty:
                 break
             self.process_item(item)
+        if qsize > 0:
+            logger.warning("Finished draining queue, processed %i items", processed)
         # clean up
         self.inbound_queue.close()
         self.inbound_queue.join_thread()
@@ -143,7 +152,7 @@ def write_to_existing_dataset_file(dataset, filename, offset, file_block_size=32
     assert offset is not None
     # store variable as we use it a few times
     dataset_length = dataset.size
-    logger.info('Writing %i entries to %s', dataset_length, filename)
+    logger.debug('Writing %i entries to %s', dataset_length, filename)
     with h5py.File(filename, 'a') as dataset_file:
         need_resize = (offset + dataset_length) >= dataset_file['time'].len()
         for name in dataset.dtype.names:

@@ -1,14 +1,26 @@
 # directories
 __pycache__/
 .git/
+.github/
+.pytest_cache/
 config/
+csv/
 data/
 docs/
+fixlogs/
+hdb/
 htmlcov/
 junk/
 logs/
+work/
+zips/
+
 # files
 .coverage
 .gitignore
 Dockerfile
 README.md
+*.csv
+*.log
+*.pyc
+*.h5

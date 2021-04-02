@@ -1,4 +1,7 @@
+"""A simple Book Builder, turns quotes into books"""
 import logging
+import os
+import json
 
 from queue import Empty
 
@@ -13,6 +16,7 @@ class BookBuilder():
                  outbound_queue,     # outbound work (to filewriter)
                  shutdown_event,     # publisher shutdown?
                  shutdown_consumer,  # shutdown consumer?
+                 config,
                  max_levels=10):
         logger.info('Initialising Book Builder')
         # queues
@@ -27,6 +31,19 @@ class BookBuilder():
         self.schema = np.zeros(1, dtype=create_schema(max_levels))
         # internal state
         self.quotes = {}
+        # config
+        self.config = config
+        # restore quotes
+        if self.config:
+            clear_book = self.config.get('clear_book')
+            if clear_book is False:
+                quotes = load_book(self.config['book_path'])
+                if quotes:
+                    logger.info("Restored previous book state")
+                    self.quotes = quotes
+                    logger.debug("Book state: %r", self.quotes)
+                else:
+                    logger.info("No previous book state")
 
     def run(self):
         """Consume queue until told to stop"""
@@ -42,15 +59,25 @@ class BookBuilder():
     def shutdown(self):
         """Perform shutdown related housekeeping"""
         logger.info('Shutdown triggered!')
+        qsize = self.inbound_queue.qsize()
+        if qsize > 0:
+            logger.warning("Queue contains %i items, consuming before shutting down...", qsize)
+        processed = 0
         while True:
             # drain queue
             try:
                 item = self.inbound_queue.get(block=False)
+                processed += 1
             except Empty:
                 break
             self.process_item(item)
+        if qsize > 0:
+            logger.warning("Finished draining queue, processed %i items", processed)
         self.inbound_queue.close()
         self.inbound_queue.join_thread()
+        # save down book
+        if self.config and self.config['book_path']:
+            save_book(self.config['book_path'], self.quotes)
         logger.info('Triggering shutdown of consumer')
         self.shutdown_consumer.set()
         logger.info('Shutdown complete!')
@@ -79,6 +106,9 @@ class BookBuilder():
                             old["provider"] == new["provider"]):
                     new["time"] = old["time"]
         self.quotes[symbol] = updated_quotes
+        # if this is a "clear book" item
+        if time == -1 and snapshot and len(updated_quotes) == 0:
+            return None
         # build new book
         book = build_book(time, updated_quotes.values(), np.copy(self.schema), self.max_levels)
         # push book to outbound queue
@@ -140,10 +170,7 @@ def flip_quotes(quotes, entry_type, descending):
     filtered = list(filter(lambda x: x['entry_type'] == entry_type and x['size'] > 0, quotes))
     # pull out rows into columns
     entries = [[d[k] for d in filtered] for k in ['time', 'price', 'size', 'provider']]
-    times = entries[0]
-    prices = entries[1]
-    sizes = entries[2]
-    providers = entries[3]
+    times, prices, sizes, providers = entries
     # index to sort ascending/descending
     sort_idx = np.argsort(prices)[::-1 if descending else 1]
     # apply sorting
@@ -197,3 +224,17 @@ def create_schema(levels):
         for i in range(levels):
             dtype.append((column + str(i), datatype))
     return dtype
+
+
+def load_book(book_path):
+    """Attempts to load a json book from book_path"""
+    if os.path.isfile(book_path):
+        with open(book_path, 'r') as infile:
+            return json.load(infile)
+    return None
+
+
+def save_book(book_path, book):
+    """Saves a book in json format to book_path"""
+    with open(book_path, 'w') as outfile:
+        json.dump(book, outfile)

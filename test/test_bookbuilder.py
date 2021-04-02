@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, call
 
 from queue import Empty
 
@@ -12,12 +12,47 @@ class TestBookBuilderClass(unittest.TestCase):
 
     def setUp(self):
         self.inbound_queue = Mock()
+        self.inbound_queue.qsize = Mock(side_effect=[1])
         self.outbound_queue = Mock()
         self.shutdown_event = Mock()
         self.shutdown_consumer = Mock()
+        self.config = None
         self.bookbuilder = bb.BookBuilder(self.inbound_queue, self.outbound_queue,
                                           self.shutdown_event, self.shutdown_consumer,
-                                          max_levels=4)
+                                          self.config, max_levels=4)
+
+    def test_config(self):
+        self.config = {
+            'clear_book': True
+        }
+        self.bookbuilder = bb.BookBuilder(self.inbound_queue, self.outbound_queue,
+                                          self.shutdown_event, self.shutdown_consumer,
+                                          self.config, max_levels=4)
+        self.assertEqual({}, self.bookbuilder.quotes)
+
+    def test_config_restore_quotes(self):
+        self.config = {
+            'clear_book': False,
+            'book_path': '/foo/bar'
+        }
+        with patch('app.bookbuilder.load_book') as load_book:
+            load_book.side_effect = [True]
+            self.bookbuilder = bb.BookBuilder(self.inbound_queue, self.outbound_queue,
+                                              self.shutdown_event, self.shutdown_consumer,
+                                              self.config, max_levels=4)
+            self.assertEqual(True, self.bookbuilder.quotes)
+
+    def test_config_restore_quotes_none(self):
+        self.config = {
+            'clear_book': False,
+            'book_path': '/foo/bar'
+        }
+        with patch('app.bookbuilder.load_book') as load_book:
+            load_book.side_effect = [False]
+            self.bookbuilder = bb.BookBuilder(self.inbound_queue, self.outbound_queue,
+                                              self.shutdown_event, self.shutdown_consumer,
+                                              self.config, max_levels=4)
+            self.assertEqual({}, self.bookbuilder.quotes)
 
     def test_run(self):
         self.shutdown_event.is_set = Mock(side_effect=[False, True])
@@ -49,6 +84,14 @@ class TestBookBuilderClass(unittest.TestCase):
             self.inbound_queue.close.assert_called_once()
             self.inbound_queue.join_thread.assert_called_once()
 
+    def test_shutdown_save_book(self):
+        # nothing on the queue
+        self.inbound_queue.get = Mock(side_effect=[Empty])
+        with patch('app.bookbuilder.save_book') as save_book:
+            self.bookbuilder.config = {'book_path': '/tmp'}
+            self.bookbuilder.shutdown()
+            save_book.assert_called_once()
+
     def test_process_item(self):
         with patch('app.bookbuilder.update_quotes', side_effect=[dict()]) as update_quotes:
             with patch('app.bookbuilder.build_book') as build_book:
@@ -71,6 +114,14 @@ class TestBookBuilderClass(unittest.TestCase):
                 self.bookbuilder.process_item([1, "symbol", [3, 4, 5], True])
                 update_quotes.assert_called_with(1, {}, [3, 4, 5])
                 build_book.assert_called_once()
+
+    def test_process_item_snapshot_clear_book(self):
+        with patch('app.bookbuilder.update_quotes', side_effect=[dict()]) as update_quotes:
+            with patch('app.bookbuilder.build_book') as build_book:
+                self.bookbuilder.quotes["symbol"] = {'a': 1 }
+                res = self.bookbuilder.process_item([-1, 'EURUSD', [], True])
+                update_quotes.assert_called_with(-1, {}, [])
+                self.assertEqual(None, res)
 
 class TestBookBuilderFuncs(unittest.TestCase):
 
@@ -208,17 +259,6 @@ class TestBookBuilderFuncs(unittest.TestCase):
         self.assertEqual({'S1': {'entry_type': 1, 'price': 2.34, 'provider': 'a',
                                  'size': 250, 'time': 1595336925000000}},
                          res)
-
-    # update provider (?)
-    # def test_update_quotes_update_provider(self):
-    #     quote = [['1', 100, None, 1.23, None, 'a', None]]
-    #     new_quote = [['1', None, None, None, None, 'b', None]]
-    #     quotes = bb.update_quotes(self.time, {}, quote)
-    #     res = bb.update_quotes(self.new_time, quotes, new_quote)
-    #     self.assertEqual(1, len(res))
-    #     self.assertEqual({'B1': {'entry_type': 0, 'price': 1.23, 'provider': 'b',
-    #                              'size': 100, 'time': 1595336925000000}},
-    #                      res)
 
     # update both price and size
     def test_update_quotes_update_bid(self):
@@ -455,7 +495,6 @@ class TestBookBuilderFuncs(unittest.TestCase):
         self.assertEqual(2.34, res['ask_px2'])
         self.assertEqual(400, res['ask_size2'])
 
-
 # create_schema
     def test_create_schema(self):
         res = bb.create_schema(4)
@@ -531,3 +570,30 @@ class TestBookBuilderFuncs(unittest.TestCase):
         self.assertEqual([1.23, 1.25], prices)
         self.assertEqual([5.0, 3.0], sizes)
         self.assertEqual(['a', 'c'], providers)
+
+    def test_load_book_path_doesnt_exist(self):
+        with patch('os.path.isfile') as isfile:
+            isfile.side_effect = [False]
+            res = bb.load_book('/foo/bar')
+            self.assertEqual(None, res)
+
+    def test_load_book_path_does_exist(self):
+        with patch('os.path.isfile') as isfile:
+            isfile.side_effect = [True]
+            with patch('app.bookbuilder.open') as o:
+                with patch('json.load') as json_load:
+                    path = '/foo/bar/'
+                    quotes = {'a':123}
+                    json_load.side_effect = [quotes]
+                    res = bb.load_book(path)
+                    self.assertEqual(call(path, 'r'), o.mock_calls[0])
+                    self.assertEqual(quotes, res)
+
+    def test_save_book(self):
+        path = '/foo/bar/'
+        quotes = {'a':123}
+        with patch('app.bookbuilder.open') as o:
+            with patch('json.dump') as json_dump:
+                bb.save_book(path, quotes)
+                self.assertEqual(call(path, 'w'), o.mock_calls[0])
+                json_dump.assert_called_once()
