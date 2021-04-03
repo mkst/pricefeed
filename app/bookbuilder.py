@@ -32,6 +32,8 @@ class BookBuilder():
         self.quotes = {}
         # config
         self.config = config
+        # state
+        self.count = 0
         # restore quotes
         if self.config:
             if not self.config['clear_book']:
@@ -104,7 +106,11 @@ class BookBuilder():
         book = build_book(time, updated_quotes.values(), np.copy(self.schema), self.max_levels)
         # push book to outbound queue
         self.outbound_queue.put((time, symbol, book))
-        # return book to aid testing
+        # stats
+        self.count += 1
+        if self.count % 1000000 == 0:
+            logger.info('Inbound queue contains approx %i items', self.inbound_queue.qsize())
+            # return book to aid testing
         return book
 
 

@@ -38,6 +38,8 @@ class FileWriter():
         self.cache = {}
         self.file_block_size = block_size
         self.max_cache_size = cache_size
+        # stats
+        self.count = 0
 
     def run(self):
         """Consume queue until told to stop"""
@@ -89,6 +91,10 @@ class FileWriter():
             self.cache[key] = None
         else:
             self.cache[key] = cache
+        # stats
+        self.count += 1
+        if self.count % 1000000 == 0:
+            logger.info('Inbound queue contains approx %i items', self.inbound_queue.qsize())
 
     def flush_cache_all(self):
         for key, cache in self.cache.items():

@@ -90,7 +90,11 @@ class OfflinePriceFeed():
 
     def parse_nonfix_line(self, line):
         # add some other handlers here?
-        logger.warn('NON-FIX line: %r', line)
+        start = line.find('[INFO ]')
+        if start > -1:
+            logger.info('NON-FIX line: %r', line[start:])
+        else:
+            logger.warning('NON-FIX line: %r', line)
 
     def parse_file(self, file):
         logger.info("Parsing %s", file.name)
