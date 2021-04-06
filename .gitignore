@@ -1,5 +1,6 @@
 # folders
 __pycache__/
+.pytest_cache/
 data/
 docs/
 fixlogs/
@@ -7,9 +8,9 @@ htmlcov/
 junk/
 logs/
 work/
+zips/
 
 # files
 .coverage
 *.pyc
 *.log
-config/mappings.json

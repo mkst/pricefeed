@@ -38,8 +38,6 @@ class FileWriter():
         self.cache = {}
         self.file_block_size = block_size
         self.max_cache_size = cache_size
-        # stats
-        self.count = 0
 
     def run(self):
         """Consume queue until told to stop"""
@@ -55,13 +53,21 @@ class FileWriter():
     def shutdown(self):
         """Perform shutdown related housekeeping"""
         logger.info('Shutdown triggered!')
+        qsize = self.inbound_queue.qsize()
+        if qsize > 0:
+            logger.warning("Queue still contains %i items, consuming before shutting down...", qsize)
+        processed = 0
         # drain queue
         while True:
             try:
-                item = self.inbound_queue.get(block=False)
+                # book builder is slower than filewriter, so block during queue drain!
+                item = self.inbound_queue.get(block=True, timeout=5)
+                processed += 1
             except Empty:
                 break
             self.process_item(item)
+        if qsize > 0:
+            logger.warning("Finished draining queue, processed %i items", processed)
         # clean up
         self.inbound_queue.close()
         self.inbound_queue.join_thread()
@@ -91,10 +97,6 @@ class FileWriter():
             self.cache[key] = None
         else:
             self.cache[key] = cache
-        # stats
-        self.count += 1
-        if self.count % 1000000 == 0:
-            logger.info('Inbound queue contains approx %i items', self.inbound_queue.qsize())
 
     def flush_cache_all(self):
         for key, cache in self.cache.items():

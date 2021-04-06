@@ -11,6 +11,7 @@ import app.filewriter as fw
 class TestFileWriterClass(unittest.TestCase):
     def setUp(self):
         self.inbound_queue = Mock()
+        self.inbound_queue.qsize = Mock(side_effect=[1])
         self.shutdown_event = Mock()
         self.file_path = '/dev/shm/test'
         self.cache_size = 2

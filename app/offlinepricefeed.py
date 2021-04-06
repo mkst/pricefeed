@@ -17,9 +17,9 @@ class OfflinePriceFeed():
         logger.info('Initialising Offline Price Feed')
         #
         self.queue = queue
-        self.file_list = file_list
         self.shutdown_event = shutdown_event
         self.config = config
+        self.file_list = file_list
         #
         self.data_dictionary = fix.DataDictionary()
         self.data_dictionary.readFromURL('spec/pxm44.xml')
@@ -40,15 +40,13 @@ class OfflinePriceFeed():
         self.message_count = 0
         self.price_update_count = 0
         # load mappings
-        if os.path.isfile(self.config['mappings_path']):
-            with open(self.config['mappings_path'], 'r') as infile:
+        mappings_path = self.config.get('mappings_path')
+        if mappings_path and os.path.isfile(mappings_path):
+            with open(mappings_path, 'r') as infile:
                 self.active_subscriptions = json.load(infile)
                 logger.info('Loaded %i subscriptions from %s',
-                            len(self.active_subscriptions), self.config['mappings_path'])
+                            len(self.active_subscriptions), mappings_path)
                 logger.debug('Subscriptions map: %s', self.active_subscriptions)
-
-    def set_file_list(self, file_list):
-        self.file_list = file_list
 
     def run(self):
         for file in self.file_list:
@@ -67,26 +65,31 @@ class OfflinePriceFeed():
 
     def shutdown(self):
         logging.info('Shutdown triggered')
-        if self.config['mappings_path']:
-            with open(self.config['mappings_path'], 'w') as outfile:
+        mappings_path = self.config.get('mappings_path')
+        if mappings_path:
+            with open(mappings_path, 'w') as outfile:
                 json.dump(self.active_subscriptions, outfile)
         if not self.shutdown_event.is_set():
             logger.info('Triggering shutdown event')
             self.shutdown_event.set()
         logger.info('Shutdown complete!')
 
+    def to_fix_message(self, line):
+        message = fix.Message(line, self.data_dictionary)
+        msg_type = message.getHeader().getField(fix.MsgType()).getString()
+        return msg_type, message
+
     def parse_fix_line(self, line):
         try:
-            message = fix.Message(line, self.data_dictionary)
-            msg_type = message.getHeader().getField(fix.MsgType()).getString()
-            handler = self.handlers.get(msg_type)
-            if handler:
-                handler(message)
-            else:
-                logger.warning('Unsupported MsgType received %s %s', msg_type, message)
-
-        except Exception as e:
-            logging.error("%r", e)
+            msg_type, message = self.to_fix_message(line)
+        except (fix.MessageParseError, fix.InvalidMessage) as e:
+            logging.error("Failed to parse %r", e)
+            return
+        handler = self.handlers.get(msg_type)
+        if handler:
+            handler(message)
+        else:
+            logger.warning('Unsupported MsgType received %s %s', msg_type, message)
 
     def parse_nonfix_line(self, line):
         # add some other handlers here?
@@ -138,22 +141,22 @@ class OfflinePriceFeed():
         quotes = pf.process_market_data_snapshot(message)
         self.queue.put(quotes)
 
-    def on_logon(self, message):
+    def on_logon(self, message):  # pragma: no cover
         logger.info('%s', pf.soh_to_pipe(message))
 
-    def on_logout(self, message):
+    def on_logout(self, message):  # pragma: no cover
         logger.info('%s', pf.soh_to_pipe(message))
 
-    def on_heartbeat(self, message):
+    def on_heartbeat(self, message):  # pragma: no cover
         logger.debug('%s', message)
 
-    def on_testrequest(self, message):
+    def on_testrequest(self, message):  # pragma: no cover
         logger.debug('%s', message)
 
-    def on_market_data_request_reject(self, message):
+    def on_market_data_request_reject(self, message):  # pragma: no cover
         logger.info('%s', pf.soh_to_pipe(message))
 
-    def on_mass_quote_ack(self, message):
+    def on_mass_quote_ack(self, message):  # pragma: no cover
         logger.debug('%s', message)
 
     def update_subscriptions(self, id, symbol):

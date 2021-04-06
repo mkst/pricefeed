@@ -1,12 +1,17 @@
 # directories
 __pycache__/
 .git/
+.github/
 config/
 data/
 docs/
+fixlogs/
 htmlcov/
 junk/
 logs/
+work/
+zips/
+
 # files
 .coverage
 .gitignore

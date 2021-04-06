@@ -32,11 +32,10 @@ class BookBuilder():
         self.quotes = {}
         # config
         self.config = config
-        # state
-        self.count = 0
         # restore quotes
         if self.config:
-            if not self.config['clear_book']:
+            clear_book = self.config.get('clear_book')
+            if clear_book is False:
                 quotes = load_book(self.config['book_path'])
                 if quotes:
                     logger.info("Restored previous book state")
@@ -59,13 +58,20 @@ class BookBuilder():
     def shutdown(self):
         """Perform shutdown related housekeeping"""
         logger.info('Shutdown triggered!')
+        qsize = self.inbound_queue.qsize()
+        if qsize > 0:
+            logger.warning("Queue still contains %i items, consuming before shutting down...", qsize)
+        processed = 0
         while True:
             # drain queue
             try:
                 item = self.inbound_queue.get(block=False)
+                processed += 1
             except Empty:
                 break
             self.process_item(item)
+        if qsize > 0:
+            logger.warning("Finished draining queue, processed %i items", processed)
         self.inbound_queue.close()
         self.inbound_queue.join_thread()
         # save down book
@@ -106,11 +112,7 @@ class BookBuilder():
         book = build_book(time, updated_quotes.values(), np.copy(self.schema), self.max_levels)
         # push book to outbound queue
         self.outbound_queue.put((time, symbol, book))
-        # stats
-        self.count += 1
-        if self.count % 1000000 == 0:
-            logger.info('Inbound queue contains approx %i items', self.inbound_queue.qsize())
-            # return book to aid testing
+        # return book to aid testing
         return book
 
 
