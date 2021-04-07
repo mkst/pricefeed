@@ -12,5 +12,6 @@ zips/
 
 # files
 .coverage
-*.pyc
+*.csv
 *.log
+*.pyc

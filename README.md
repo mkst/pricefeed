@@ -35,3 +35,14 @@ docker run --rm -ti -v $(pwd)/config:/app/config -v $(pwd)/logs:/app/logs -v $(p
 - `--block-size`; hdf5 block size (larger size means less resizing, but more wasted space at end of the file)
 - `--clear-book-state`; TODO: clear historic book state (e.g. when parsing hours/days not weeks)
 - `--debug`; enable debug log level
+
+#### Other
+
+Run offline for a single 'day':
+```sh
+DATE=20210404 sh cron.sh
+```
+Create BBO from H5
+``
+for f in data/2021-04-04/*.h5; do python3 scripts/h5_to_csv.py $f data/csv/2021-04-04/; done
+```
