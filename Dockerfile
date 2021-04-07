@@ -1,6 +1,6 @@
 FROM python:3.8-slim as build
 
-RUN apt-get update && apt-get install -y gcc g++
+RUN apt-get update && apt-get install -y gcc g++ zip
 
 COPY requirements.txt /
 

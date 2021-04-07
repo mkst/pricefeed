@@ -61,7 +61,7 @@ class FileWriter():
         while True:
             try:
                 # book builder is slower than filewriter, so block during queue drain!
-                item = self.inbound_queue.get(block=True, timeout=5)
+                item = self.inbound_queue.get(block=True, timeout=3)
                 processed += 1
             except Empty:
                 break
