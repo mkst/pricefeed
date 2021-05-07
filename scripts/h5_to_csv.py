@@ -40,6 +40,7 @@ def dump_bbo(inpath, outpath, symbol):
     print("Writing down %i entries to %s" % (len(df), outpath))
     df.export_csv(outpath)
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('inpath', type=str,
@@ -53,6 +54,7 @@ def main():
     outpath = os.path.join(args.outdir, symbol + ".csv")
 
     dump_bbo(args.inpath, outpath, symbol)
+
 
 if __name__ == '__main__':
     main()

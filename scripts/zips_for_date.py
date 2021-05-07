@@ -2,6 +2,7 @@ import argparse
 import datetime
 import sys
 
+
 def zips_for_date(date, suffix='_quote.zip'):
     # generates 0100 -> 0000
     dates = [date + datetime.timedelta(hours=hour) for hour in range(1, 25)]
@@ -20,12 +21,13 @@ def main():
     args = parser.parse_args()
     try:
         date = datetime.datetime.strptime(args.date, args.date_format)
-    except:
+    except Exception:
         print('Failed to parse input date %s with format %s' % (args.date, args.date_format))
         return 1
     zips = zips_for_date(date, suffix=args.file_suffix)
     print(" ".join(zips))
     return 0
+
 
 if __name__ == '__main__':
     res = main()

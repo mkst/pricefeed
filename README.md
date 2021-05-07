@@ -38,11 +38,15 @@ docker run --rm -ti -v $(pwd)/config:/app/config -v $(pwd)/logs:/app/logs -v $(p
 
 #### Other
 
-Run offline for a single 'day':
+**Run offline for single date**
 ```sh
-DATE=20210404 sh cron.sh
+# spin up container
+docker run --rm -ti -v $(pwd):/app -v /data/price_logs/today/tradefeedr_provider/pricing:/ziplogs --entrypoint /bin/bash pricefeed:latest
+# run for 2021.05.02
+ZIPDIR=/ziplogs DATE=20210502 sh scripts/run.sh
 ```
-Create BBO from H5
+
+**Create BBO from H5**
 ``
 for f in data/2021-04-04/*.h5; do python3 scripts/h5_to_csv.py $f data/csv/2021-04-04/; done
 ```

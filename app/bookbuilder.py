@@ -60,7 +60,7 @@ class BookBuilder():
         logger.info('Shutdown triggered!')
         qsize = self.inbound_queue.qsize()
         if qsize > 0:
-            logger.warning("Queue still contains %i items, consuming before shutting down...", qsize)
+            logger.warning("Queue contains %i items, consuming before shutting down...", qsize)
         processed = 0
         while True:
             # drain queue

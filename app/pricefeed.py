@@ -69,8 +69,8 @@ def process_quote_set(quote_set, quote_entry):
         ask_size = float(quote_entry.getField(135)) if quote_entry.isSetField(135) else None
         bid_price = float(quote_entry.getField(188)) if quote_entry.isSetField(188) else None
         ask_price = float(quote_entry.getField(190)) if quote_entry.isSetField(190) else None
-        bid_provider = provider if ((bid_price is not None) or (bid_size is not None)) else None
-        ask_provider = provider if ((ask_price is not None) or (ask_size is not None)) else None
+        bid_provider = provider if (ask_price is None) else None
+        ask_provider = provider if (ask_price is not None) else None
         entries.append([
             entry_id,
             bid_size, ask_size,

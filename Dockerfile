@@ -10,6 +10,8 @@ RUN pip3 install $(cat requirements.txt)
 
 FROM python:3.8-slim as base
 
+COPY --from=build /usr/bin/unzip /usr/bin/unzip
+
 COPY --from=build /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/
 
 COPY . /app

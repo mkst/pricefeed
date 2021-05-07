@@ -32,10 +32,18 @@ for file in ${FILES}; do
   fi
   # last processed?
   echo -n "${file}" > ${WORKDIR}/last_processed
+  # backup book/mappings
+  if [ -e "${WORKDIR}/mappings.json" ]; then
+    cp "${WORKDIR}/mappings.json" "${WORKDIR}/${file}_mappings.json"
+  fi
+  if [ -e "${WORKDIR}/book.json" ]; then
+    cp "${WORKDIR}/book.json" "${WORKDIR}/${file}_book.json"
+  fi
   # cleanup
   echo "cleanup ${LOGFILE}"
   rm -f "${LOGFILE}"
 done
 
-# 3. cleanup logs
+# 3. cleanup if successful
 rm -f ${WORKDIR}/${DATE}*.log 2>/dev/null
+rm -f ${WORKDIR}/${DATE}*.json 2>/dev/null
