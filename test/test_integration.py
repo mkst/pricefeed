@@ -147,8 +147,8 @@ class TestIntegrationClass(unittest.TestCase):
             self.pricefeed.on_mass_quote(msg, None)
             item = self.pricefeed.queue.get()
             self.assertEqual((1616965217157000, 'EURUSD', [
-                ['0', 1100000.0, 2200000.0, 2.47, 2.49, None, '0'],
-                ['1', 1100000.0, 2200000.0, 2.46, 2.48, None, '1'],
+                ['0', 1100000.0, 2200000.0, 2.47, 2.49, '0', '0'],
+                ['1', 1100000.0, 2200000.0, 2.46, 2.48, '1', '1'],
             ], False), item)
             self.bookbuilder.process_item(item)
             time, symbol, book = self.bookbuilder.outbound_queue.get()
@@ -158,11 +158,11 @@ class TestIntegrationClass(unittest.TestCase):
             self.assertEqual(1616965217157000, book['bid_time0'])
             self.assertEqual(2.47, book['bid_px0'])
             self.assertEqual(1100000, book['bid_size0'])
-            self.assertEqual(b'', book['bid_provider0'][0])
+            self.assertEqual(b'0', book['bid_provider0'][0])
             self.assertEqual(1616965217157000, book['bid_time1'])
             self.assertEqual(2.46, book['bid_px1'])
             self.assertEqual(1100000, book['bid_size1'])
-            self.assertEqual(b'', book['bid_provider1'][0])
+            self.assertEqual(b'1', book['bid_provider1'][0])
             self.assertEqual(0, book['bid_time2'])
             self.assertEqual(0, book['bid_px2'])
             self.assertEqual(0, book['bid_size2'])
@@ -201,8 +201,8 @@ class TestIntegrationClass(unittest.TestCase):
             self.pricefeed.on_mass_quote(msg, None)
             item = self.pricefeed.queue.get()
             self.assertEqual((1616965217159000, 'EURUSD', [
-                ['0', 1200000.0, 1200000.0, 2.46, 2.47, None, '1'],
-                ['1', 2300000.0, 2300000.0, 2.45, 2.48, None, '0'],
+                ['0', 1200000.0, 1200000.0, 2.46, 2.47, '1', '1'],
+                ['1', 2300000.0, 2300000.0, 2.45, 2.48, '0', '0'],
             ], False), item)
             self.bookbuilder.process_item(item)
             time, symbol, book = self.bookbuilder.outbound_queue.get()
@@ -212,11 +212,11 @@ class TestIntegrationClass(unittest.TestCase):
             self.assertEqual(1616965217159000, book['bid_time0'])
             self.assertEqual(2.46, book['bid_px0'])
             self.assertEqual(1200000, book['bid_size0'])
-            self.assertEqual(b'', book['bid_provider0'][0])
+            self.assertEqual(b'1', book['bid_provider0'][0])
             self.assertEqual(1616965217159000, book['bid_time1'])
             self.assertEqual(2.45, book['bid_px1'])
             self.assertEqual(2300000, book['bid_size1'])
-            self.assertEqual(b'', book['bid_provider1'][0])
+            self.assertEqual(b'0', book['bid_provider1'][0])
             self.assertEqual(0, book['bid_time2'])
             self.assertEqual(0, book['bid_px2'])
             self.assertEqual(0, book['bid_size2'])
@@ -238,8 +238,8 @@ class TestIntegrationClass(unittest.TestCase):
             # second quoteset
             item = self.pricefeed.queue.get()
             self.assertEqual((1616965217159000, 'USDCAD', [
-                ['0', 2200000.0, 1100000.0, 1.47, 1.49, None, '0'],
-                ['1', 2200000.0, 1100000.0, 1.46, 1.49, None, '1'],
+                ['0', 2200000.0, 1100000.0, 1.47, 1.49, '0', '0'],
+                ['1', 2200000.0, 1100000.0, 1.46, 1.49, '1', '1'],
             ], False), item)
             self.bookbuilder.process_item(item)
             time, symbol, book = self.bookbuilder.outbound_queue.get()
@@ -249,11 +249,11 @@ class TestIntegrationClass(unittest.TestCase):
             self.assertEqual(1616965217159000, book['bid_time0'])
             self.assertEqual(1.47, book['bid_px0'])
             self.assertEqual(2200000, book['bid_size0'])
-            self.assertEqual(b'', book['bid_provider0'][0])
+            self.assertEqual(b'0', book['bid_provider0'][0])
             self.assertEqual(1616965217159000, book['bid_time1'])
             self.assertEqual(1.46, book['bid_px1'])
             self.assertEqual(2200000, book['bid_size1'])
-            self.assertEqual(b'', book['bid_provider1'][0])
+            self.assertEqual(b'1', book['bid_provider1'][0])
             self.assertEqual(0, book['bid_time2'])
             self.assertEqual(0, book['bid_px2'])
             self.assertEqual(0, book['bid_size2'])
@@ -1114,7 +1114,7 @@ class TestIntegrationClass(unittest.TestCase):
         self.pricefeed.on_mass_quote(msg, None)
         item = self.pricefeed.queue.get()
         self.assertEqual((1616965337157000, 'USDCAD', [
-            ['0', 1000000.0, 1100000.0, 1.33, 1.35, None, '0'],
+            ['0', 1000000.0, 1100000.0, 1.33, 1.35, '0', '0'],
         ], False), item)
         self.bookbuilder.process_item(item)
         time, symbol, book = self.bookbuilder.outbound_queue.get()
@@ -1125,7 +1125,7 @@ class TestIntegrationClass(unittest.TestCase):
         self.assertEqual(1616965337157000, book['bid_time0'])
         self.assertEqual(1.33, book['bid_px0'])
         self.assertEqual(1000000, book['bid_size0'])
-        self.assertEqual(b'', book['bid_provider0'][0])
+        self.assertEqual(b'0', book['bid_provider0'][0])
         self.assertEqual(0, book['bid_time1'])
         self.assertEqual(0, book['bid_px1'])
         self.assertEqual(0, book['bid_size1'])
@@ -1199,7 +1199,7 @@ class TestIntegrationClass(unittest.TestCase):
         self.pricefeed.on_mass_quote(msg, None)
         item = self.pricefeed.queue.get()
         self.assertEqual((1616965397157000, 'USDCAD', [
-            ['0', 1000000.0, 1100000.0, 1.33, 1.35, None, '0'],
+            ['0', 1000000.0, 1100000.0, 1.33, 1.35, '0', '0'],
         ], False), item)
         self.bookbuilder.process_item(item)
         time, symbol, book = self.bookbuilder.outbound_queue.get()
@@ -1210,7 +1210,7 @@ class TestIntegrationClass(unittest.TestCase):
         self.assertEqual(1616965397157000, book['bid_time0'])
         self.assertEqual(1.33, book['bid_px0'])
         self.assertEqual(1000000, book['bid_size0'])
-        self.assertEqual(b'', book['bid_provider0'][0])
+        self.assertEqual(b'0', book['bid_provider0'][0])
         self.assertEqual(0, book['bid_time1'])
         self.assertEqual(0, book['bid_px1'])
         self.assertEqual(0, book['bid_size1'])
@@ -1235,7 +1235,7 @@ class TestIntegrationClass(unittest.TestCase):
         self.pricefeed.on_mass_quote(msg, None)
         item = self.pricefeed.queue.get()
         self.assertEqual((1616965397157000, 'EURUSD', [
-            ['1', 2000000.0, 2100000.0, 2.33, 2.35, None, '1'],
+            ['1', 2000000.0, 2100000.0, 2.33, 2.35, '1', '1'],
         ], False), item)
         self.bookbuilder.process_item(item)
         time, symbol, book = self.bookbuilder.outbound_queue.get()
@@ -1246,7 +1246,7 @@ class TestIntegrationClass(unittest.TestCase):
         self.assertEqual(1616965397157000, book['bid_time0'])
         self.assertEqual(2.33, book['bid_px0'])
         self.assertEqual(2000000, book['bid_size0'])
-        self.assertEqual(b'', book['bid_provider0'][0])
+        self.assertEqual(b'1', book['bid_provider0'][0])
         self.assertEqual(0, book['bid_time1'])
         self.assertEqual(0, book['bid_px1'])
         self.assertEqual(0, book['bid_size1'])
