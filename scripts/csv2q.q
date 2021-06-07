@@ -70,18 +70,20 @@ main:{[options]
     providersMap::loadProviders hsym `$first opts`providers;
     // process csv
     book:loadCsv[infile;columnCount];
+    // take table name from filename
+    tableName:`$first "." vs last "/" vs first opts`infile;
     // take symbol from filename if -symbol not specified
     symbol:`$$[`symbol in key opts;
         first opts`symbol;
-        ssr[first "." vs last "/" vs first opts`infile;"book";""]];
+        ssr[string tableName;"book";""]];
     // add sym column and reorder
     book:`time`sym xcols update sym:symbol from book;
     // set table in global space
-    symbol set book;
+    tableName set book;
     // set compression
     .z.zd: 17 2 6;
     // writedown
-    .Q.dpft[outpath;dt;`sym;] symbol
+    .Q.dpft[outpath;dt;`sym;] tableName
     };
 
 if[`csv2q.q = `$last "/" vs string .z.f; main .z.x; exit 0];

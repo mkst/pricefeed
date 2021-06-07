@@ -1,6 +1,6 @@
-id,name,alias
-0,statestreet,st
-1,xtx,xt
-2,cmc,cm
-3,tradefeedr,tf
-4,goldman,gs
+id,name,alias,aggregate
+0,statestreet,st,1
+1,xtx,xt,1
+2,cmc,cm,1
+3,tradefeedr,tf,0
+4,goldman,gs,1

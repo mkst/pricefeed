@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE_DIR="$( cd "$( dirname "$0" )/../" &> /dev/null && pwd )"
+BASE_DIR="$( readlink -f "$( dirname "$0" )/../" )"
 
 # default paths
 CSVDIR="${CSVDIR:-${BASE_DIR}/data/csv}"
