@@ -5,7 +5,7 @@ BASE_DIR="$( readlink -f "$( dirname "$0" )/../" )"
 # default paths
 HDBDIR="${HDBDIR:-${BASE_DIR}/hdb}"
 SCRIPTDIR="${SCRIPTDIR:-${BASE_DIR}/scripts}"
-QBIN="${QBIN:-${HOME}/q/l64/q}"
+QBIN="${QBIN:-${HOME}/q/l32/q}"
 
 # process yesterday by default
 LOGDATE=$(date --date="yesterday" +"%Y.%m.%d")
